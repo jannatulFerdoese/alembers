@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "alembers_lexer",
+    "alembers_common",
+    "alembers_ast",
+    "alembers"
+]
