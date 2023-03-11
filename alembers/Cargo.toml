@@ -1,0 +1,10 @@
+[package]
+name = "alembers"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+alembers_ast = { path = "../alembers_ast" }
+alembers_lexer = { path = "../alembers_lexer" }
