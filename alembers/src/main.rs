@@ -1,18 +1,48 @@
 mod distributivity;
+mod identities;
 mod quadratic;
 
 use alembers_ast::ast::Parser;
 use alembers_lexer::lex_expression;
 
 fn main() {
-    let expression = "(1*(x^2)) - (1*x) - 1 = 0";
+    let ast = Parser::new(lex_expression("a * (b + c)".into()).as_slice())
+        .parse()
+        .unwrap();
 
-    let tokens = lex_expression(expression.into());
-    let ast = Parser::new(tokens.as_slice()).parse().unwrap();
+    println!(
+        "{} <=> {}",
+        ast.to_text(),
+        distributivity::simple_distribute(ast).to_text()
+    );
 
-    let (delta, x1, x2) = quadratic::solve_quadratic(ast);
+    let ast = Parser::new(lex_expression("a * (b - c)".into()).as_slice())
+        .parse()
+        .unwrap();
 
-    println!("Delta: {delta}");
-    println!("x1:    {x1}");
-    println!("x2:    {x2}");
+    println!(
+        "{} <=> {}",
+        ast.to_text(),
+        distributivity::simple_distribute(ast).to_text()
+    );
+
+    let ast = Parser::new(lex_expression("b^((2*m)+n)".into()).as_slice())
+        .parse()
+        .unwrap();
+
+    println!(
+        "{} <=> {}",
+        ast.to_text(),
+        identities::b_exp_m_plus_n(ast).to_text()
+    );
+
+    let ast = Parser::new(lex_expression("(b^m)^n".into()).as_slice())
+        .parse()
+        .unwrap();
+
+    println!(
+        "{} <=> {}",
+        ast.to_text(),
+        identities::b_exp_m_exp_n(ast).to_text()
+    );
 }

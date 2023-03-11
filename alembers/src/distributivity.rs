@@ -10,11 +10,9 @@ macro_rules! expression_to_ast {
     };
 }
 
-fn simple_distribute(ast: ASTNode) -> ASTNode {
+pub fn simple_distribute(ast: ASTNode) -> ASTNode {
     let (server_op, server, right_ast) = match ast {
-        ASTNode::BinaryOp(server_op, left, right) if server_op == '*' || server_op == '/' => {
-            (server_op, *left, *right)
-        }
+        ASTNode::BinaryOp(server_op, left, right) if server_op == '*' => (server_op, *left, *right),
         _ => panic!(),
     };
 
@@ -58,15 +56,5 @@ fn simple_distribute_test() {
     assert_eq!(
         simple_distribute(expression_to_ast!("a * (b - c)")).to_text(),
         "(a * b) - (a * c)"
-    );
-
-    assert_eq!(
-        simple_distribute(expression_to_ast!("a / (b + c)")).to_text(),
-        "(a / b) + (a / c)"
-    );
-
-    assert_eq!(
-        simple_distribute(expression_to_ast!("a / (b - c)")).to_text(),
-        "(a / b) - (a / c)"
     );
 }
