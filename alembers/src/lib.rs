@@ -1,5 +1,50 @@
 use alembers_ast::ast::ASTNode;
 
+pub fn factorize(ast: ASTNode) -> Option<ASTNode> {
+    match ast {
+        ASTNode::BinaryOp(op, left, right) if op == '+' || op == '-' => {
+            let (left_l, left_r) = match *left {
+                ASTNode::BinaryOp('*', l, r) => (l, r),
+                _ => return None,
+            };
+
+            let (right_l, right_r) = match *right {
+                ASTNode::BinaryOp('*', l, r) => (l, r),
+                _ => return None,
+            };
+
+            if left_l.fingerprint() == right_l.fingerprint() {
+                Some(ASTNode::BinaryOp(
+                    '*',
+                    left_l,
+                    Box::new(ASTNode::BinaryOp(op, left_r, right_r)),
+                ))
+            } else if left_l.fingerprint() == right_r.fingerprint() {
+                Some(ASTNode::BinaryOp(
+                    '*',
+                    left_l,
+                    Box::new(ASTNode::BinaryOp(op, left_r, right_l)),
+                ))
+            } else if left_r.fingerprint() == right_l.fingerprint() {
+                Some(ASTNode::BinaryOp(
+                    '*',
+                    left_r,
+                    Box::new(ASTNode::BinaryOp(op, left_l, right_r)),
+                ))
+            } else if left_r.fingerprint() == right_r.fingerprint() {
+                Some(ASTNode::BinaryOp(
+                    '*',
+                    left_r,
+                    Box::new(ASTNode::BinaryOp(op, left_l, right_l)),
+                ))
+            } else {
+                None
+            }
+        }
+        _ => None,
+    }
+}
+
 pub fn simple_distribute(ast: ASTNode) -> Option<ASTNode> {
     let (server_op, server, right_ast) = match ast {
         ASTNode::BinaryOp(server_op, left, right) if server_op == '*' => (server_op, *left, *right),
@@ -65,7 +110,6 @@ pub fn a_squared_minus_b_squared(ast: ASTNode) -> Option<ASTNode> {
     }
 }
 
-/// (a+-b)^2 = a^2 +- 2ab + b^2
 pub fn a_plus_minus_b_squared(ast: ASTNode) -> Option<ASTNode> {
     match ast {
         ASTNode::BinaryOp('^', a_plus_b, exp) => {
@@ -98,7 +142,6 @@ pub fn a_plus_minus_b_squared(ast: ASTNode) -> Option<ASTNode> {
     }
 }
 
-/// (b^m)^n = b^(m*n)
 pub fn b_exp_m_exp_n(ast: ASTNode) -> Option<ASTNode> {
     match ast {
         ASTNode::BinaryOp('^', base_b_m, exp_n) => {
@@ -117,7 +160,6 @@ pub fn b_exp_m_exp_n(ast: ASTNode) -> Option<ASTNode> {
     }
 }
 
-/// b^(m+n) = b^m * b^n
 pub fn b_exp_m_plus_n(ast: ASTNode) -> Option<ASTNode> {
     match ast {
         ASTNode::BinaryOp('^', base, exp) => {

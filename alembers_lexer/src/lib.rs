@@ -6,7 +6,7 @@ pub fn lex_expression(expression: String) -> Vec<Token> {
 
     while let Some(c) = chars.next() {
         match c {
-            ' ' => continue,
+            ' ' | '\n' => continue,
             '+' => tokens.push(Token::Plus),
             '-' => {
                 if let Some(&('0'..='9')) = chars.peek() {

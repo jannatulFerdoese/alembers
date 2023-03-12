@@ -1,74 +1,79 @@
+mod solver;
+
+use std::{fmt::Display, io::Write};
+
 use alembers_ast::ast::Parser;
 use alembers_lexer::lex_expression;
 
+enum State {
+    Solver,
+    Simplifier,
+}
+
+impl Display for State {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let strr = match self {
+            Self::Solver => "solver",
+            Self::Simplifier => "simplifier",
+        };
+
+        write!(f, "{}", strr)
+    }
+}
+
 fn main() {
-    let ast = Parser::new(lex_expression("a * (b + c)".into()).as_slice())
-        .parse()
-        .unwrap();
+    loop {
+        let mut state = State::Solver;
+        let mut input = String::new();
 
-    println!(
-        "{} <=> {}\n",
-        ast.to_text(),
-        alembers::simple_distribute(ast).unwrap().to_text()
-    );
+        std::io::stdout()
+            .write_all(format!("[alembers ({})]: ", state).as_bytes())
+            .unwrap();
 
-    let ast = Parser::new(lex_expression("a * (b - c)".into()).as_slice())
-        .parse()
-        .unwrap();
+        std::io::stdout().flush().unwrap();
 
-    println!(
-        "{} <=> {}\n",
-        ast.to_text(),
-        alembers::simple_distribute(ast).unwrap().to_text()
-    );
+        match std::io::stdin().read_line(&mut input) {
+            Ok(_) => {
+                match input.as_str() {
+                    "solver" => {
+                        state = State::Solver;
+                        continue;
+                    }
+                    "simplifier" => {
+                        state = State::Simplifier;
+                        continue;
+                    }
+                    _ => {}
+                }
 
-    let ast = Parser::new(lex_expression("b^((2*m)+n)".into()).as_slice())
-        .parse()
-        .unwrap();
+                let tokens = lex_expression(input);
+                let ast = Parser::new(tokens.as_slice()).parse();
 
-    println!(
-        "{} <=> {}\n",
-        ast.to_text(),
-        alembers::b_exp_m_plus_n(ast).unwrap().to_text()
-    );
+                match ast {
+                    None => {
+                        println!("Failed to parse AST!");
+                        continue;
+                    }
+                    _ => {}
+                }
 
-    let ast = Parser::new(lex_expression("(b^m)^n".into()).as_slice())
-        .parse()
-        .unwrap();
+                match state {
+                    State::Solver => {
+                        let solutions = solver::solver(ast.unwrap());
 
-    println!(
-        "{} <=> {}\n",
-        ast.to_text(),
-        alembers::b_exp_m_exp_n(ast).unwrap().to_text()
-    );
-
-    let ast = Parser::new(lex_expression("(a+b)^2".into()).as_slice())
-        .parse()
-        .unwrap();
-
-    println!(
-        "{} <=> {}\n",
-        ast.to_text(),
-        alembers::a_plus_minus_b_squared(ast).unwrap().to_text()
-    );
-
-    let ast = Parser::new(lex_expression("(a-b)^2".into()).as_slice())
-        .parse()
-        .unwrap();
-
-    println!(
-        "{} <=> {}\n",
-        ast.to_text(),
-        alembers::a_plus_minus_b_squared(ast).unwrap().to_text()
-    );
-
-    let ast = Parser::new(lex_expression("(a^2) - (b^2)".into()).as_slice())
-        .parse()
-        .unwrap();
-
-    println!(
-        "{} <=> {}\n",
-        ast.to_text(),
-        alembers::a_squared_minus_b_squared(ast).unwrap().to_text()
-    );
+                        match &solutions.len() {
+                            0 => println!("No solution where found."),
+                            _ => {
+                                for solution in solutions {
+                                    println!("{}", solution.to_text());
+                                }
+                            }
+                        }
+                    }
+                    State::Simplifier => {}
+                }
+            }
+            Err(error) => println!("Error: {}", error),
+        }
+    }
 }
