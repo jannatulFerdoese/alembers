@@ -34,6 +34,7 @@ fn main() {
 
         match std::io::stdin().read_line(&mut input) {
             Ok(_) => {
+                #[allow(unused_assignments)]
                 match input.as_str() {
                     "solver" => {
                         state = State::Solver;

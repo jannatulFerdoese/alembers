@@ -1,3 +1,5 @@
+pub mod functions;
+
 use alembers_ast::ast::ASTNode;
 
 pub fn factorize(ast: ASTNode) -> Option<ASTNode> {
