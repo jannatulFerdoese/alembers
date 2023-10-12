@@ -25,14 +25,14 @@ response = requests.get(url)
 if response.status_code == 200:
     data = response.json()
 
-    # Extract commit statistics
-    additions = data['stats']['additions']
-    deletions = data['stats']['deletions']
+    
+    add = data['stats']['add']
+    delete = data['stats']['delete']
     total = data['stats']['total']
 
     print(f'Commit Statistics for {branch_name} branch:')
-    print(f'Additions: {additions}')
-    print(f'Deletions: {deletions}')
+    print(f'Additions: {add}')
+    print(f'Deletions: {delete}')
     print(f'Total Changes: {total}')
 else:
     print(f'Failed to fetch commit statistics. Status Code: {response.status_code}')

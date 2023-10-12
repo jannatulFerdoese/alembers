@@ -5,10 +5,16 @@ import json
 
 req = requests.get('https://api.github.com/repos/Traumatism/alembers/commits/main')
 
+
 data = req.json()
 #print(json.dumps(data))
 
 print(data['stats'])
+path = ""
+
+def remote_commit():
+    url = f"req"
+
 
 
 # #github_token = "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"
